@@ -7,7 +7,7 @@ ENV TZ Asia/Shanghai
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 5010
+EXPOSE 28080
 
 WORKDIR /usr/src/app/
 CMD [ "python", "Run/main.py" ]

@@ -37,11 +37,11 @@ class JsonResponse(Response):
 app.response_class = JsonResponse
 
 api_list = {
-    'get': u'get an usable proxy',
+    'one': u'get an usable proxy',
     # 'refresh': u'refresh proxy pool',
-    'get_all': u'get all proxy from proxy pool',
-    'delete?proxy=127.0.0.1:8080': u'delete an unable proxy',
-    'get_status': u'proxy statistics'
+    'all': u'get all proxy from proxy pool',
+    'd?proxy=ip:port': u'delete an unable proxy',
+    'status': u'proxy statistics'
 }
 
 
@@ -50,7 +50,7 @@ def index():
     return api_list
 
 
-@app.route('/get/')
+@app.route('/one/')
 def get():
     proxy = ProxyManager().get()
     return proxy if proxy else 'no proxy!'
@@ -64,20 +64,20 @@ def refresh():
     return 'success'
 
 
-@app.route('/get_all/')
+@app.route('/all/')
 def getAll():
     proxies = ProxyManager().getAll()
     return proxies
 
 
-@app.route('/delete/', methods=['GET'])
+@app.route('/d/', methods=['GET'])
 def delete():
     proxy = request.args.get('proxy')
     ProxyManager().delete(proxy)
     return 'success'
 
 
-@app.route('/get_status/')
+@app.route('/status/')
 def getStatus():
     status = ProxyManager().getNumber()
     return status
