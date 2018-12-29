@@ -51,7 +51,7 @@ class WebRequest(object):
                 'Connection': 'keep-alive',
                 'Accept-Language': 'zh-CN,zh;q=0.8'}
 
-    def get(self, url, header=None, retry_time=5, timeout=30,
+    def get(self, url, proxies, header=None, retry_time=5, timeout=30,
             retry_flag=list(), retry_interval=5, *args, **kwargs):
         """
         get method
@@ -70,6 +70,9 @@ class WebRequest(object):
             headers.update(header)
         while True:
             try:
+                if proxies :
+                    s = requests.Session()
+                    s.proxies = {"http": "http://{proxy}".format(proxy=proxies)}
                 html = requests.get(url, headers=headers, timeout=timeout, **kwargs)
                 if any(f in html.content for f in retry_flag):
                     raise Exception

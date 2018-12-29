@@ -17,6 +17,7 @@ from lxml import etree
 
 from Util.LogHandler import LogHandler
 from Util.WebRequest import WebRequest
+from Manager.ProxyManager import ProxyManager
 
 # logger = LogHandler(__name__, stream=False)
 
@@ -65,12 +66,11 @@ def getHtmlTree(url, **kwargs):
               'Accept-Language': 'zh-CN,zh;q=0.8',
               }
     # TODO 取代理服务器用代理服务器访问
+    proxy = ProxyManager().get()
     wr = WebRequest()
-
     # delay 2s for per request
     time.sleep(2)
-
-    html = wr.get(url=url, header=header).content
+    html = wr.get(url=url, proxies = proxy, header=header).content
     return etree.HTML(html)
 
 
@@ -90,7 +90,7 @@ def tcpConnect(proxy):
 # noinspection PyPep8Naming
 def validUsefulProxy(proxy):
     """
-    检验代理是否可用
+    检验http代理是否可用
     :param proxy:
     :return:
     """
@@ -100,6 +100,26 @@ def validUsefulProxy(proxy):
     try:
         # 超过20秒的代理就不要了
         r = requests.get('http://httpbin.org/ip', proxies=proxies, timeout=10, verify=False)
+        if r.status_code == 200 and r.json().get("origin"):
+            # logger.info('%s is ok' % proxy)
+            return True
+    except Exception as e:
+        # logger.error(str(e))
+        return False
+
+# noinspection PyPep8Naming
+def validHttpsUsefulProxy(proxy):
+    """
+    检验https代理是否可用
+    :param proxy:
+    :return:
+    """
+    if isinstance(proxy, bytes):
+        proxy = proxy.decode('utf8')
+    proxies = {"http": "http://{proxy}".format(proxy=proxy)}
+    try:
+        # 超过20秒的代理就不要了
+        r = requests.get('https://httpbin.org/ip', proxies=proxies, timeout=10, verify=False)
         if r.status_code == 200 and r.json().get("origin"):
             # logger.info('%s is ok' % proxy)
             return True
